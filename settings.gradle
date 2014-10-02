@@ -1,0 +1,2 @@
+rootProject.name='tftp4j'
+include 'tftp-protocol','tftp-server-mina', 'tftp-server-netty'

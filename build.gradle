@@ -1,0 +1,56 @@
+// Establish version and status
+ext.githubProjectName = rootProject.name // Change if github project name is not the same as the root project's name
+
+buildscript {
+    repositories {
+        // mavenLocal()
+        mavenCentral() // maven { url 'http://jcenter.bintray.com' }
+    }
+    apply from: file('gradle/buildscript.gradle'), to: buildscript 
+}
+
+allprojects {
+    repositories { 
+        // mavenLocal()
+        mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
+    }
+}
+
+apply from: file('gradle/convention.gradle')
+apply from: file('gradle/maven.gradle')
+apply from: file('gradle/check.gradle')
+apply from: file('gradle/license.gradle')
+// apply from: file('gradle/release.gradle')
+
+subprojects {
+    group = "org.anarres.tftp"
+
+    dependencies {
+        compile 'com.google.code.findbugs:jsr305:2.0.2'
+		compile 'org.slf4j:slf4j-api:1.7.7'
+
+        testCompile 'junit:junit:4.8.1'
+
+		testRuntime 'org.slf4j:slf4j-jcl:1.7.7'
+    }
+}
+
+project(':tftp-protocol') {
+	dependencies {
+		compile 'com.google.guava:guava:18.0'
+	}
+}
+
+project(':tftp-server-mina') {
+	dependencies {
+		compile project(':tftp-protocol')
+		compile 'org.apache.mina:mina-core:2.0.8'
+	}
+}
+
+project(':tftp-server-netty') {
+	dependencies {
+		compile project(':tftp-protocol')
+		compile 'io.netty:netty-all:4.0.23.Final'
+	}
+}
