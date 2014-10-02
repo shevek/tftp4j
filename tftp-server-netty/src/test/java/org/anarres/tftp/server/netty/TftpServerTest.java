@@ -4,7 +4,7 @@
  */
 package org.anarres.tftp.server.netty;
 
-import org.anarres.tftp.protocol.resource.TftpFileCacheDataProvider;
+import org.anarres.tftp.protocol.engine.TftpServerTester;
 import org.junit.Test;
 
 /**
@@ -15,10 +15,12 @@ public class TftpServerTest {
 
     @Test
     public void testServer() throws Exception {
-        TftpServer server = new TftpServer(new TftpFileCacheDataProvider(), 1067);
+        TftpServerTester tester = new TftpServerTester();
+        TftpServer server = new TftpServer(tester.getProvider(), tester.getPort());
         try {
             server.start();
-            Thread.sleep(100000);
+            tester.run();
+            // Thread.sleep(100000);
         } finally {
             server.stop();
         }

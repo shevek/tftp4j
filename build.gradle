@@ -29,7 +29,7 @@ subprojects {
         compile 'com.google.code.findbugs:jsr305:2.0.2'
 		compile 'org.slf4j:slf4j-api:1.7.7'
 
-        testCompile 'junit:junit:4.8.1'
+        testCompile 'junit:junit:4.11'
 
 		testRuntime 'org.slf4j:slf4j-jcl:1.7.7'
     }
@@ -38,6 +38,8 @@ subprojects {
 project(':tftp-protocol') {
 	dependencies {
 		compile 'com.google.guava:guava:18.0'
+
+		testCompile 'commons-net:commons-net:3.3'
 	}
 }
 
@@ -45,6 +47,9 @@ project(':tftp-server-mina') {
 	dependencies {
 		compile project(':tftp-protocol')
 		compile 'org.apache.mina:mina-core:2.0.8'
+
+		testCompile 'commons-net:commons-net:3.3'
+		testCompile project(':tftp-protocol').sourceSets.test.output
 	}
 }
 
@@ -52,6 +57,9 @@ project(':tftp-server-netty') {
 	dependencies {
 		compile project(':tftp-protocol')
 		compile 'io.netty:netty-all:4.0.23.Final'
+
+		testCompile 'commons-net:commons-net:3.3'
+		testCompile project(':tftp-protocol').sourceSets.test.output
 
 		testRuntime 'org.javassist:javassist:3.18.2-GA'
 	}
