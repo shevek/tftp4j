@@ -7,12 +7,11 @@ package org.anarres.tftp.server.netty;
 import com.google.common.io.ByteSource;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.ReferenceCountUtil;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -51,7 +50,7 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
             SocketAddress remoteAddress = address;
             if (remoteAddress == null)
                 remoteAddress = ctx.channel().remoteAddress();
-            LOG.info(remoteAddress + " <- " + packet);
+            // LOG.info(remoteAddress + " <- " + packet);
         }
         ctx.write(datagram);
     }
@@ -77,11 +76,11 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
                             .channel(NioDatagramChannel.class)
                             .remoteAddress(address)
                             .handler(new TftpTransferHandler(transfer));
-                    bootstrap.connect().addListener(new ChannelFutureListener() {
-                        public void operationComplete(ChannelFuture future) throws Exception {
-                            LOG.info("Connected to " + address);
-                        }
-                    });
+                    bootstrap.connect()/*.addListener(new ChannelFutureListener() {
+                             public void operationComplete(ChannelFuture future) throws Exception {
+                             LOG.info("Connected to " + address);
+                             }
+                             })*/;
                 }
                 break;
             }
@@ -102,6 +101,8 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
                 break;
             }
         }
+
+        ReferenceCountUtil.release(msg);
     }
 
     @Override

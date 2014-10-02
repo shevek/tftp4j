@@ -7,6 +7,7 @@ package org.anarres.tftp.server.netty;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
+import io.netty.util.ReferenceCountUtil;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.TftpConnection;
@@ -56,6 +57,7 @@ public class TftpTransferHandler extends ChannelDuplexHandler {
         DatagramPacket datagram = (DatagramPacket) msg;
         TftpPacket packet = TftpServerHandler.DECODER.decode(datagram.content().nioBuffer());
         transfer.handle(new Connection(ctx), packet);
+        ReferenceCountUtil.release(msg);
     }
 
     @Override
