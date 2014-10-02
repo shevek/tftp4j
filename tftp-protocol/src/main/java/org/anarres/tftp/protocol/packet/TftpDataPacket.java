@@ -5,7 +5,6 @@
 package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Objects;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 
@@ -55,14 +54,14 @@ public class TftpDataPacket extends TftpPacket {
     }
 
     @Override
-    public void toWire(ByteBuffer buffer) throws IOException {
+    public void toWire(ByteBuffer buffer) {
         super.toWire(buffer);
         buffer.putChar(getBlockNumber());
         buffer.put(getData());
     }
 
     @Override
-    public void fromWire(ByteBuffer buffer) throws IOException {
+    public void fromWire(ByteBuffer buffer) {
         setBlockNumber(buffer.getChar());
         byte[] tmp = new byte[buffer.remaining()];
         buffer.get(tmp);

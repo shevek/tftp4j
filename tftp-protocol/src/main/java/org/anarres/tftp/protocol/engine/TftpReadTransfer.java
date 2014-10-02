@@ -91,6 +91,7 @@ public class TftpReadTransfer implements Closeable {
 
     public void open(@Nonnull TftpConnection connection) throws IOException {
         sendBlock(connection);
+        connection.flush();
     }
 
     public void handle(@Nonnull TftpConnection connection, @Nonnull TftpPacket packet) throws Exception {
@@ -115,6 +116,7 @@ public class TftpReadTransfer implements Closeable {
                 connection.close();
                 break;
         }
+        connection.flush();
     }
 
     public void timeout(@Nonnull TftpConnection connection) throws IOException {

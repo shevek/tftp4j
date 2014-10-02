@@ -31,6 +31,9 @@ public class TftpFileDataProvider extends AbstractTftpDataProvider {
         String path = toPath(prefix, filename);
         if (path == null)
             return null;
-        return Files.asByteSource(new File(path));
+        File file = new File(path);
+        if (!file.isFile())
+            return null;
+        return Files.asByteSource(file);
     }
 }

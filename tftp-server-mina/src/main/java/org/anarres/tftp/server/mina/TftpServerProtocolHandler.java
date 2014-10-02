@@ -67,7 +67,9 @@ public class TftpServerProtocolHandler extends IoHandlerAdapter {
                 session.close(false);
                 break;
             }
-            case ACK:
+            case ACK: {
+                break;
+            }
             case DATA: {
                 LOG.warn("Unexpected TFTP " + packet.getOpcode() + " packet: " + packet);
                 session.write(new TftpErrorPacket(TftpErrorCode.ILLEGAL_OPERATION), address);

@@ -6,7 +6,6 @@ package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -50,14 +49,14 @@ public abstract class TftpRequestPacket extends TftpPacket {
     }
 
     @Override
-    public void toWire(ByteBuffer buffer) throws IOException {
+    public void toWire(ByteBuffer buffer) {
         super.toWire(buffer);
         putString(buffer, getFilename());
         putString(buffer, getMode().name());
     }
 
     @Override
-    public void fromWire(ByteBuffer buffer) throws IOException {
+    public void fromWire(ByteBuffer buffer) {
         setFilename(getString(buffer));
         setMode(TftpMode.forMode(getString(buffer)));
         // This is enough to go on with, so we'll do our best with the rest.

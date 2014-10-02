@@ -5,7 +5,6 @@
 package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Objects;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -31,13 +30,13 @@ public class TftpAckPacket extends TftpPacket {
     }
 
     @Override
-    public void toWire(ByteBuffer buffer) throws IOException {
+    public void toWire(ByteBuffer buffer) {
         super.toWire(buffer);
         buffer.putChar(getBlockNumber());
     }
 
     @Override
-    public void fromWire(ByteBuffer buffer) throws IOException {
+    public void fromWire(ByteBuffer buffer) {
         setBlockNumber(buffer.getChar());
     }
 

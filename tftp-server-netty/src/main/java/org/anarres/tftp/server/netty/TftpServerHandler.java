@@ -14,7 +14,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.codec.TftpPacketDecoder;
 import org.anarres.tftp.protocol.codec.TftpPacketEncoder;
@@ -42,9 +44,15 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
         this.provider = provider;
     }
 
-    private void send(@Nonnull ChannelHandlerContext ctx, @Nonnull InetSocketAddress address, @Nonnull TftpPacket packet) {
+    public static void send(@Nonnull ChannelHandlerContext ctx, @CheckForNull InetSocketAddress address, @Nonnull TftpPacket packet) {
         ByteBuffer buffer = ENCODER.encode(packet);
         DatagramPacket datagram = new DatagramPacket(Unpooled.wrappedBuffer(buffer), address);
+        {
+            SocketAddress remoteAddress = address;
+            if (remoteAddress == null)
+                remoteAddress = ctx.channel().remoteAddress();
+            LOG.info(remoteAddress + " <- " + packet);
+        }
         ctx.write(datagram);
     }
 
@@ -53,8 +61,8 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
         DatagramPacket datagram = (DatagramPacket) msg;
         TftpPacket packet = DECODER.decode(datagram.content().nioBuffer());
 
-        InetSocketAddress address = datagram.sender();
-        LOG.info("Address is " + address);
+        final InetSocketAddress address = datagram.sender();
+        LOG.info(address + " -> " + packet);
 
         switch (packet.getOpcode()) {
             case RRQ: {
@@ -62,17 +70,16 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
                 ByteSource source = provider.open(request.getFilename());
                 if (source == null) {
                     send(ctx, address, new TftpErrorPacket(TftpErrorCode.FILE_NOT_FOUND));
-                    ctx.close();
                 } else {
                     TftpReadTransfer transfer = new TftpReadTransfer(source, request.getBlockSize());
                     Bootstrap bootstrap = new Bootstrap()
                             .group(ctx.channel().eventLoop())
-                            .channel(NioDatagramChannel.class).
-                            handler(new TftpTransferHandler(transfer));
+                            .channel(NioDatagramChannel.class)
+                            .remoteAddress(address)
+                            .handler(new TftpTransferHandler(transfer));
                     bootstrap.connect().addListener(new ChannelFutureListener() {
                         public void operationComplete(ChannelFuture future) throws Exception {
-                            future.channel().isOpen();
-                            throw new UnsupportedOperationException("Not supported yet.");
+                            LOG.info("Connected to " + address);
                         }
                     });
                 }
@@ -80,19 +87,18 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
             }
             case WRQ: {
                 send(ctx, address, new TftpErrorPacket(TftpErrorCode.PERMISSION_DENIED));
-                ctx.close();
                 break;
             }
-            case ACK:
+            case ACK: {
+                break;
+            }
             case DATA: {
                 LOG.warn("Unexpected TFTP " + packet.getOpcode() + " packet: " + packet);
                 send(ctx, address, new TftpErrorPacket(TftpErrorCode.ILLEGAL_OPERATION));
-                ctx.close();
                 break;
             }
             case ERROR: {
                 LOG.error("Received TFTP error packet: " + packet);
-                ctx.close();
                 break;
             }
         }

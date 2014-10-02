@@ -5,7 +5,6 @@
 package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Objects;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -51,14 +50,14 @@ public class TftpErrorPacket extends TftpPacket {
     }
 
     @Override
-    public void toWire(ByteBuffer buffer) throws IOException {
+    public void toWire(ByteBuffer buffer) {
         super.toWire(buffer);
         buffer.putShort(getErrorCode());
         putString(buffer, getErrorMessage());
     }
 
     @Override
-    public void fromWire(ByteBuffer buffer) throws IOException {
+    public void fromWire(ByteBuffer buffer) {
         setErrorCode(buffer.getShort());
         setErrorMessage(getString(buffer));
     }
