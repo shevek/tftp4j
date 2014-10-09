@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractTftpDataProvider implements TftpDataProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTftpDataProvider.class);
-    public static final String PREFIX = "/tftproot";
 
     @CheckForNull
     protected String toPath(@Nonnull String prefix, @Nonnull String path) {

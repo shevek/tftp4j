@@ -15,6 +15,9 @@ import javax.annotation.Nonnull;
  */
 public interface TftpDataProvider {
 
+    /**
+     * Returns the resource with the given name.
+     */
     @CheckForNull
     public ByteSource open(@Nonnull String filename) throws IOException;
 }

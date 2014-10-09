@@ -20,11 +20,14 @@ import javax.annotation.Nonnull;
  *
  * @author shevek
  */
-public class TftpFileCacheDataProvider extends AbstractTftpDataProvider {
+public class TftpFileCacheDataProvider extends TftpFileDataProvider {
 
     private final String prefix;
     private final LoadingCache<File, byte[]> cache;
 
+    /**
+     * @param cacheSize The cache size in bytes.
+     */
     public TftpFileCacheDataProvider(@Nonnull String prefix, @Nonnegative long cacheSize) {
         this.prefix = prefix;
         this.cache = CacheBuilder.newBuilder()
@@ -42,6 +45,9 @@ public class TftpFileCacheDataProvider extends AbstractTftpDataProvider {
         });
     }
 
+    /**
+     * @param cacheSize The cache size in bytes.
+     */
     public TftpFileCacheDataProvider(@Nonnegative long cacheSize) {
         this(PREFIX, cacheSize);
     }
@@ -53,11 +59,8 @@ public class TftpFileCacheDataProvider extends AbstractTftpDataProvider {
 
     @Override
     public ByteSource open(String filename) throws IOException {
-        String path = toPath(prefix, filename);
-        if (path == null)
-            return null;
-        File file = new File(path);
-        if (!file.isFile())
+        File file = toFile(filename);
+        if (file == null)
             return null;
         return ByteSource.wrap(cache.getUnchecked(file));
     }

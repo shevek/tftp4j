@@ -8,6 +8,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -16,6 +17,7 @@ import javax.annotation.Nonnull;
  */
 public class TftpFileDataProvider extends AbstractTftpDataProvider {
 
+    public static final String PREFIX = "/tftproot";
     private final String prefix;
 
     public TftpFileDataProvider(@Nonnull String prefix) {
@@ -26,13 +28,29 @@ public class TftpFileDataProvider extends AbstractTftpDataProvider {
         this(PREFIX);
     }
 
-    @Override
-    public ByteSource open(String filename) throws IOException {
-        String path = toPath(prefix, filename);
+    @Nonnull
+    public String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Prepends the prefix to the filename, then returns an ordinary file, or null.
+     */
+    @CheckForNull
+    protected File toFile(@Nonnull String filename) {
+        String path = toPath(getPrefix(), filename);
         if (path == null)
             return null;
         File file = new File(path);
         if (!file.isFile())
+            return null;
+        return file;
+    }
+
+    @Override
+    public ByteSource open(String filename) throws IOException {
+        File file = toFile(filename);
+        if (file == null)
             return null;
         return Files.asByteSource(file);
     }

@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
  */
 public class TftpResourceDataProvider extends AbstractTftpDataProvider {
 
+    public static final String PREFIX = "tftproot";
     private final String prefix;
 
     public TftpResourceDataProvider(@Nonnull String prefix) {
@@ -26,9 +27,14 @@ public class TftpResourceDataProvider extends AbstractTftpDataProvider {
         this(PREFIX);
     }
 
+    @Nonnull
+    public String getPrefix() {
+        return prefix;
+    }
+
     @Override
     public ByteSource open(String filename) throws IOException {
-        String path = toPath(prefix, filename);
+        String path = toPath(getPrefix(), filename);
         if (path == null)
             return null;
         URL resource = Resources.getResource(path);
