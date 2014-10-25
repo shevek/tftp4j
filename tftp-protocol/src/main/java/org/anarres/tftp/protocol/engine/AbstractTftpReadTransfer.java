@@ -7,9 +7,9 @@ package org.anarres.tftp.protocol.engine;
 import com.google.common.io.ByteSource;
 import org.anarres.tftp.protocol.packet.TftpDataPacket;
 import com.google.common.io.ByteStreams;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketAddress;
 import java.util.Arrays;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author shevek
  */
-public class TftpReadTransfer implements Closeable {
+public abstract class AbstractTftpReadTransfer<TftpTransferContext> extends AbstractTftpTransfer<TftpTransferContext> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TftpReadTransfer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTftpReadTransfer.class);
     public static final int MAX_WINDOW_SIZE = 16;
     public static final int MAX_RETRIES = 3;
     private final InputStream inputStream;
@@ -37,7 +37,8 @@ public class TftpReadTransfer implements Closeable {
     private int retryNumber = 0;
     private boolean closed = false;
 
-    public TftpReadTransfer(@Nonnull ByteSource source, @Nonnegative int blockSize) throws IOException {
+    public AbstractTftpReadTransfer(@Nonnull SocketAddress remoteAddress, @Nonnull ByteSource source, @Nonnegative int blockSize) throws IOException {
+        super(remoteAddress);
         this.inputStream = source.openBufferedStream();
         this.block = new byte[blockSize];
     }
@@ -71,60 +72,58 @@ public class TftpReadTransfer implements Closeable {
         return retryNumber++ < MAX_RETRIES;
     }
 
-    private void resendBlock(@Nonnull TftpConnection connection) throws IOException {
+    private void resendBlock(@Nonnull TftpTransferContext context) throws Exception {
         if (!nextRetry()) {
-            LOG.error("Retries exceeded (" + TftpReadTransfer.MAX_RETRIES + ") on " + this);
-            connection.close();
-            close();
+            LOG.error("Retries exceeded (" + AbstractTftpReadTransfer.MAX_RETRIES + ") on " + this);
+            inputStream.close();
+            close(context);
         } else {
-            connection.send(currentPacket());
+            send(context, currentPacket());
         }
     }
 
-    private void sendBlock(@Nonnull TftpConnection connection) throws IOException {
+    private void sendBlock(@Nonnull TftpTransferContext context) throws Exception {
         TftpDataPacket data = nextPacket();
         if (data == null)
-            connection.close();
+            close(context);
         else
-            connection.send(data);
+            send(context, data);
     }
 
-    public void open(@Nonnull TftpConnection connection) throws IOException {
-        sendBlock(connection);
-        connection.flush();
+    @Override
+    public void open(@Nonnull TftpTransferContext context) throws Exception {
+        sendBlock(context);
+        flush(context);
     }
 
-    public void handle(@Nonnull TftpConnection connection, @Nonnull TftpPacket packet) throws Exception {
+    @Override
+    public void handle(@Nonnull TftpTransferContext context, @Nonnull TftpPacket packet) throws Exception {
         switch (packet.getOpcode()) {
             case ACK:
                 TftpAckPacket ack = (TftpAckPacket) packet;
                 if (ack.getBlockNumber() == getBlockNumber())
-                    sendBlock(connection);
+                    sendBlock(context);
                 else
-                    resendBlock(connection);
+                    resendBlock(context);
                 break;
             case RRQ:
             case WRQ:
             case DATA:
                 LOG.warn("Unexpected TFTP " + packet.getOpcode() + " packet: " + packet);
-                connection.send(new TftpErrorPacket(TftpErrorCode.ILLEGAL_OPERATION));
-                connection.close();
+                send(context, new TftpErrorPacket(packet.getRemoteAddress(), TftpErrorCode.ILLEGAL_OPERATION));
+                close(context);
                 break;
             case ERROR:
                 TftpErrorPacket error = (TftpErrorPacket) packet;
                 LOG.error("Received TFTP error packet: " + error);
-                connection.close();
+                close(context);
                 break;
         }
-        connection.flush();
-    }
-
-    public void timeout(@Nonnull TftpConnection connection) throws IOException {
-        resendBlock(connection);
+        flush(context);
     }
 
     @Override
-    public void close() throws IOException {
-        inputStream.close();
+    public void timeout(@Nonnull TftpTransferContext context) throws Exception {
+        resendBlock(context);
     }
 }

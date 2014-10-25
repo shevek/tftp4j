@@ -6,8 +6,6 @@ package org.anarres.tftp.server.mina;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.anarres.tftp.protocol.engine.AbstractTftpServer;
 import org.anarres.tftp.protocol.resource.TftpDataProvider;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;

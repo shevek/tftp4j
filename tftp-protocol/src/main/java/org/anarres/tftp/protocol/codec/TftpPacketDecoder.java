@@ -4,6 +4,7 @@
  */
 package org.anarres.tftp.protocol.codec;
 
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.packet.TftpAckPacket;
@@ -25,7 +26,7 @@ public class TftpPacketDecoder {
     private static final Logger LOG = LoggerFactory.getLogger(TftpPacketDecoder.class);
 
     @Nonnull
-    public TftpPacket decode(@Nonnull ByteBuffer buf) {
+    public TftpPacket decode(@Nonnull SocketAddress remoteAddress, @Nonnull ByteBuffer buf) {
         TftpOpcode opcode = TftpOpcode.forCode(buf.getShort());
         TftpPacket packet;
         switch (opcode) {
@@ -48,6 +49,7 @@ public class TftpPacketDecoder {
             default:
                 throw new IllegalStateException("Unknown TftpOpcode in decoder: " + opcode);
         }
+        packet.setRemoteAddress(remoteAddress);
         packet.fromWire(buf);
         if (buf.position() < buf.limit()) {
             LOG.warn("Discarded " + (buf.limit() - buf.position()) + " trailing bytes in TFTP packet: " + buf);

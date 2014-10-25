@@ -5,6 +5,7 @@
 package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Objects;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
 /**
@@ -19,13 +20,14 @@ public class TftpErrorPacket extends TftpPacket {
     public TftpErrorPacket() {
     }
 
-    public TftpErrorPacket(short errorCode, String errorMessage) {
+    public TftpErrorPacket(SocketAddress remoteAddress, short errorCode, String errorMessage) {
+        setRemoteAddress(remoteAddress);
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
 
-    public TftpErrorPacket(TftpErrorCode errorCode) {
-        this(errorCode.getCode(), errorCode.getDescription());
+    public TftpErrorPacket(SocketAddress remoteAddress, TftpErrorCode errorCode) {
+        this(remoteAddress, errorCode.getCode(), errorCode.getDescription());
     }
 
     @Override

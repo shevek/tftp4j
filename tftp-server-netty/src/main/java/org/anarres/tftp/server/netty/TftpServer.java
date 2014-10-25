@@ -24,9 +24,14 @@ import org.anarres.tftp.protocol.resource.TftpDataProvider;
 public class TftpServer extends AbstractTftpServer {
 
     private Channel channel;
+    private final TftpPipelineInitializer.SharedHandlers sharedHandlers = new TftpPipelineInitializer.SharedHandlers();
 
     public TftpServer(@Nonnull TftpDataProvider dataProvider, @Nonnegative int port) {
         super(dataProvider, port);
+    }
+
+    public void setDebug(boolean debug) {
+        sharedHandlers.setDebug(debug);
     }
 
     @Override
@@ -37,7 +42,7 @@ public class TftpServer extends AbstractTftpServer {
         Bootstrap b = new Bootstrap();
         b.group(group);
         b.channel(NioDatagramChannel.class);
-        b.handler(new TftpServerHandler(getDataProvider()));
+        b.handler(new TftpPipelineInitializer(sharedHandlers, new TftpServerHandler(sharedHandlers, getDataProvider())));
         channel = b.bind(getPort()).sync().channel();
     }
 

@@ -7,12 +7,12 @@ package org.anarres.tftp.server.mina;
 import com.google.common.io.ByteSource;
 import java.net.SocketAddress;
 import javax.annotation.Nonnull;
+import org.anarres.tftp.protocol.engine.TftpTransfer;
 import org.anarres.tftp.protocol.packet.TftpErrorCode;
 import org.anarres.tftp.protocol.packet.TftpErrorPacket;
 import org.anarres.tftp.protocol.packet.TftpPacket;
 import org.anarres.tftp.protocol.packet.TftpRequestPacket;
 import org.anarres.tftp.protocol.resource.TftpDataProvider;
-import org.anarres.tftp.protocol.engine.TftpReadTransfer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -48,11 +48,11 @@ public class TftpServerProtocolHandler extends IoHandlerAdapter {
                 TftpRequestPacket request = (TftpRequestPacket) packet;
                 ByteSource source = provider.open(request.getFilename());
                 if (source == null) {
-                    session.write(new TftpErrorPacket(TftpErrorCode.FILE_NOT_FOUND), address);
+                    session.write(new TftpErrorPacket(address, TftpErrorCode.FILE_NOT_FOUND), address);
                     session.close(false);
                 } else {
                     final NioDatagramConnector connector = new NioDatagramConnector();
-                    TftpReadTransfer transfer = new TftpReadTransfer(source, request.getBlockSize());
+                    TftpTransfer transfer = new TftpReadTransfer(address, source, request.getBlockSize());
                     TftpTransferProtocolHandler handler = new TftpTransferProtocolHandler(connector, transfer);
                     connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new TftpProtocolCodecFactory()));
                     connector.getFilterChain().addLast("logger-packet", new LoggingFilter("tftp-transfer-packet"));
@@ -63,7 +63,7 @@ public class TftpServerProtocolHandler extends IoHandlerAdapter {
                 break;
             }
             case WRQ: {
-                session.write(new TftpErrorPacket(TftpErrorCode.PERMISSION_DENIED), address);
+                session.write(new TftpErrorPacket(address, TftpErrorCode.PERMISSION_DENIED), address);
                 session.close(false);
                 break;
             }
@@ -72,7 +72,7 @@ public class TftpServerProtocolHandler extends IoHandlerAdapter {
             }
             case DATA: {
                 LOG.warn("Unexpected TFTP " + packet.getOpcode() + " packet: " + packet);
-                session.write(new TftpErrorPacket(TftpErrorCode.ILLEGAL_OPERATION), address);
+                session.write(new TftpErrorPacket(address, TftpErrorCode.ILLEGAL_OPERATION), address);
                 session.close(false);
                 break;
             }

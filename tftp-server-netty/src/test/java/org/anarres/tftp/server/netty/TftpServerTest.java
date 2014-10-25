@@ -24,6 +24,7 @@ public class TftpServerTest {
     public void testServer() throws Exception {
         TftpServerTester tester = new TftpServerTester();
         TftpServer server = new TftpServer(tester.getProvider(), tester.getPort());
+        server.setDebug(true);
         try {
             server.start();
             tester.run();

@@ -6,7 +6,8 @@ package org.anarres.tftp.protocol.packet;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import java.io.IOException;
+import com.google.common.base.Preconditions;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import javax.annotation.Nonnegative;
@@ -20,6 +21,16 @@ public abstract class TftpPacket {
 
     // Substitute for netascii in the RFC. ISO_8859_1 is 8-bit transparent.
     public static final Charset CHARSET = Charsets.ISO_8859_1;
+    private SocketAddress remoteAddress;
+
+    @Nonnull
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(@Nonnull SocketAddress remoteAddress) {
+        this.remoteAddress = Preconditions.checkNotNull(remoteAddress, "Remote address was null.");
+    }
 
     /** At most this long, possibly less. */
     @Nonnegative

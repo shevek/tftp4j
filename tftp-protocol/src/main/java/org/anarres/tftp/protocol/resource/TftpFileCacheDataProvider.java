@@ -22,14 +22,13 @@ import javax.annotation.Nonnull;
  */
 public class TftpFileCacheDataProvider extends TftpFileDataProvider {
 
-    private final String prefix;
     private final LoadingCache<File, byte[]> cache;
 
     /**
      * @param cacheSize The cache size in bytes.
      */
     public TftpFileCacheDataProvider(@Nonnull String prefix, @Nonnegative long cacheSize) {
-        this.prefix = prefix;
+        super(prefix);
         this.cache = CacheBuilder.newBuilder()
                 .weigher(new Weigher<Object, byte[]>() {
             public int weigh(Object key, byte[] value) {

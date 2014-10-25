@@ -63,7 +63,7 @@ public class TftpProtocolCodecFactory implements ProtocolCodecFactory {
 
         @Override
         public void decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-            TftpPacket packet = super.decode(in.buf());
+            TftpPacket packet = super.decode(session.getRemoteAddress(), in.buf());
             out.write(packet);
         }
 
