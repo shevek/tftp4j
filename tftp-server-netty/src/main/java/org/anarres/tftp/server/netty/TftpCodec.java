@@ -4,7 +4,7 @@
  */
 package org.anarres.tftp.server.netty;
 
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,8 +15,9 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.codec.TftpPacketDecoder;
-import org.anarres.tftp.protocol.codec.TftpPacketEncoder;
 import org.anarres.tftp.protocol.packet.TftpPacket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,7 +26,7 @@ import org.anarres.tftp.protocol.packet.TftpPacket;
 @ChannelHandler.Sharable
 public class TftpCodec extends ChannelDuplexHandler {
 
-    private final TftpPacketEncoder encoder = new TftpPacketEncoder();
+    private static final Logger LOG = LoggerFactory.getLogger(TftpCodec.class);
     private final TftpPacketDecoder decoder = new TftpPacketDecoder();
 
     @Nonnull
@@ -35,8 +36,12 @@ public class TftpCodec extends ChannelDuplexHandler {
 
     @Nonnull
     public DatagramPacket encode(@Nonnull ChannelHandlerContext ctx, @Nonnull TftpPacket packet) throws Exception {
-        ByteBuffer buffer = encoder.encode(packet);
-        return new DatagramPacket(Unpooled.wrappedBuffer(buffer), (InetSocketAddress) packet.getRemoteAddress());
+        ByteBuf buf = ctx.alloc().buffer(packet.getWireLength());
+        ByteBuffer buffer = buf.nioBuffer(buf.writerIndex(), buf.writableBytes());
+        packet.toWire(buffer);
+        buffer.flip();
+        buf.writerIndex(buf.writerIndex() + buffer.remaining());
+        return new DatagramPacket(buf, (InetSocketAddress) packet.getRemoteAddress());
     }
 
     @Override
@@ -52,6 +57,11 @@ public class TftpCodec extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         try {
             ctx.write(encode(ctx, (TftpPacket) msg), promise);
+            // LOG.info("Write: OK");
+        } catch (Throwable e) {
+            // LOG.info("Write: " + e);
+            // https://github.com/netty/netty/issues/3060 - exception not reported by pipeline.
+            promise.tryFailure(e);
         } finally {
             // It isn't, but it might become so?
             ReferenceCountUtil.release(msg);

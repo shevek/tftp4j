@@ -4,7 +4,7 @@
  */
 package org.anarres.tftp.protocol.resource;
 
-import com.google.common.io.ByteSource;
+import com.google.common.base.Objects;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
@@ -32,12 +32,23 @@ public class TftpResourceDataProvider extends AbstractTftpDataProvider {
         return prefix;
     }
 
+    @Nonnull
+    public ClassLoader getClassLoader() {
+        return Objects.firstNonNull(
+                Thread.currentThread().getContextClassLoader(),
+                getClass().getClassLoader());
+    }
+
     @Override
-    public ByteSource open(String filename) throws IOException {
+    public TftpData open(String filename) throws IOException {
         String path = toPath(getPrefix(), filename);
         if (path == null)
             return null;
-        URL resource = Resources.getResource(path);
-        return Resources.asByteSource(resource);
+        ClassLoader loader = getClassLoader();
+        URL resource = loader.getResource(path);
+        if (resource == null)
+            return null;
+        byte[] data = Resources.toByteArray(resource);
+        return new TftpByteArrayData(data);
     }
 }

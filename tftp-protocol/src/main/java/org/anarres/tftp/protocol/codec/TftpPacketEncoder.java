@@ -9,6 +9,10 @@ import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.packet.TftpPacket;
 
 /**
+ * This is an example which uses {@link ByteBuffer#allocate(int)}.
+ * 
+ * You may wish to use your own allocator and call
+ * {@link TftpPacket#toWire(java.nio.ByteBuffer)} yourself.
  *
  * @author shevek
  */

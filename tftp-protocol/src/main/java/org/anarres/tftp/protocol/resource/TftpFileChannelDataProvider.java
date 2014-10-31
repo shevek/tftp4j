@@ -4,10 +4,11 @@
  */
 package org.anarres.tftp.protocol.resource;
 
-import com.google.common.io.ByteSource;
-import com.google.common.io.Files;
+import com.google.common.primitives.Ints;
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -15,17 +16,17 @@ import javax.annotation.Nonnull;
  *
  * @author shevek
  */
-public class TftpFileDataProvider extends AbstractTftpDataProvider {
+public class TftpFileChannelDataProvider extends AbstractTftpDataProvider {
 
-    public static final String PREFIX = "/tftproot";
+    public static final String DEFAULT_PREFIX = "/tftproot";
     private final String prefix;
 
-    public TftpFileDataProvider(@Nonnull String prefix) {
+    public TftpFileChannelDataProvider(@Nonnull String prefix) {
         this.prefix = prefix;
     }
 
-    public TftpFileDataProvider() {
-        this(PREFIX);
+    public TftpFileChannelDataProvider() {
+        this(DEFAULT_PREFIX);
     }
 
     @Nonnull
@@ -44,14 +45,17 @@ public class TftpFileDataProvider extends AbstractTftpDataProvider {
         File file = new File(path);
         if (!file.isFile())
             return null;
+        if (!file.canRead())
+            return null;
         return file;
     }
 
     @Override
-    public ByteSource open(String filename) throws IOException {
+    public TftpData open(String filename) throws IOException {
         File file = toFile(filename);
         if (file == null)
             return null;
-        return Files.asByteSource(file);
+        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+        return new TftpFileChannelData(channel, Ints.checkedCast(channel.size()));
     }
 }

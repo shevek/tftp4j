@@ -17,19 +17,19 @@ public class TftpDataPacket extends TftpPacket {
     public static final int BLOCK_SIZE = 512;
     /** Cheat for an unsigned 2-byte value. */
     private char blockNumber;
-    private byte[] data;
+    private ByteBuffer data;
 
     public TftpDataPacket() {
     }
 
-    public TftpDataPacket(char blockNumber, @Nonnull byte[] data) {
+    public TftpDataPacket(char blockNumber, @Nonnull ByteBuffer data) {
         this.blockNumber = blockNumber;
         this.data = data;
     }
 
     @Override
     public int getWireLength() {
-        return data.length + 256;
+        return data.remaining() + 256;
     }
 
     @Override
@@ -45,11 +45,12 @@ public class TftpDataPacket extends TftpPacket {
         return blockNumber;
     }
 
-    public byte[] getData() {
+    @Nonnull
+    public ByteBuffer getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(ByteBuffer data) {
         this.data = data;
     }
 
@@ -57,7 +58,7 @@ public class TftpDataPacket extends TftpPacket {
     public void toWire(ByteBuffer buffer) {
         super.toWire(buffer);
         buffer.putChar(getBlockNumber());
-        buffer.put(getData());
+        buffer.put(getData().slice());
     }
 
     @Override
@@ -65,11 +66,13 @@ public class TftpDataPacket extends TftpPacket {
         setBlockNumber(buffer.getChar());
         byte[] tmp = new byte[buffer.remaining()];
         buffer.get(tmp);
-        setData(tmp);
+        setData(ByteBuffer.wrap(tmp));
     }
 
     @Override
     protected Objects.ToStringHelper toStringHelper() {
-        return super.toStringHelper().add("blockNumber", (int) getBlockNumber()).add("data", data).add("length", (data != null) ? data.length : 0);
+        return super.toStringHelper()
+                .add("blockNumber", (int) getBlockNumber())
+                .add("data", data);
     }
 }

@@ -21,10 +21,16 @@ public class TftpAckPacket extends TftpPacket {
         return TftpOpcode.ACK;
     }
 
+    /**
+     * @param blockNumber The block number, indexed from 1.
+     */
     public void setBlockNumber(char blockNumber) {
         this.blockNumber = blockNumber;
     }
 
+    /**
+     * @return The block number, indexed from 1.
+     */
     public char getBlockNumber() {
         return blockNumber;
     }

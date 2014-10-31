@@ -4,12 +4,14 @@
  */
 package org.anarres.tftp.server.mina;
 
-import com.google.common.io.ByteSource;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.AbstractTftpReadTransfer;
 import org.anarres.tftp.protocol.packet.TftpPacket;
+import org.anarres.tftp.protocol.resource.TftpData;
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
 /**
@@ -18,8 +20,13 @@ import org.apache.mina.core.session.IoSession;
  */
 public class TftpReadTransfer extends AbstractTftpReadTransfer<IoSession> {
 
-    public TftpReadTransfer(@Nonnull SocketAddress remoteAddress, @Nonnull ByteSource source, int blockSize) throws IOException {
+    public TftpReadTransfer(@Nonnull SocketAddress remoteAddress, @Nonnull TftpData source, int blockSize) throws IOException {
         super(remoteAddress, source, blockSize);
+    }
+
+    @Override
+    public ByteBuffer allocate(IoSession context, int length) {
+        return IoBuffer.allocate(length).buf();
     }
 
     @Override
@@ -34,5 +41,6 @@ public class TftpReadTransfer extends AbstractTftpReadTransfer<IoSession> {
     @Override
     public void close(IoSession session) throws Exception {
         session.close(false);
+        super.close(session);
     }
 }

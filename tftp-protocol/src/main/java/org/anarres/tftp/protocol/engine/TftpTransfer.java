@@ -13,10 +13,18 @@ import org.anarres.tftp.protocol.packet.TftpPacket;
  */
 public interface TftpTransfer<TftpTransferContext> {
 
-    /** Implemented by the transfer. */
+    /**
+     * Opens this TftpTransfer and sends the initial packets.
+     *
+     * Implemented by the transfer.
+     */
     public void open(@Nonnull TftpTransferContext context) throws Exception;
 
-    /** Implemented by the transfer. */
+    /**
+     * Responds to an incoming packet on this transfer.
+     *
+     * Implemented by the transfer.
+     */
     public void handle(@Nonnull TftpTransferContext context, @Nonnull TftpPacket packet) throws Exception;
 
     /** Implemented by the transfer. */

@@ -7,7 +7,6 @@ package org.anarres.tftp.server.mina;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.codec.TftpPacketDecoder;
-import org.anarres.tftp.protocol.codec.TftpPacketEncoder;
 import org.anarres.tftp.protocol.packet.TftpPacket;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -35,14 +34,16 @@ public class TftpProtocolCodecFactory implements ProtocolCodecFactory {
         return INSTANCE;
     }
 
-    private static class TftpEncoder extends TftpPacketEncoder implements ProtocolEncoder {
+    private static class TftpEncoder implements ProtocolEncoder {
 
         public static final TftpEncoder INSTANCE = new TftpEncoder();
 
         @Override
         public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws IOException {
             TftpPacket packet = (TftpPacket) message;
-            IoBuffer buf = IoBuffer.wrap(super.encode(packet));
+            IoBuffer buf = IoBuffer.allocate(packet.getWireLength());
+            packet.toWire(buf.buf());
+            buf.flip();
             out.write(buf);
         }
 

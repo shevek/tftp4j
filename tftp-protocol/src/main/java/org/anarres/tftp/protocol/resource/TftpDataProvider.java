@@ -4,7 +4,6 @@
  */
 package org.anarres.tftp.protocol.resource;
 
-import com.google.common.io.ByteSource;
 import java.io.IOException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -19,5 +18,5 @@ public interface TftpDataProvider {
      * Returns the resource with the given name.
      */
     @CheckForNull
-    public ByteSource open(@Nonnull String filename) throws IOException;
+    public TftpData open(@Nonnull String filename) throws IOException;
 }

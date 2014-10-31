@@ -4,12 +4,10 @@
  */
 package org.anarres.tftp.protocol.engine;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -24,9 +22,9 @@ import static org.junit.Assert.*;
  */
 public class TftpServerTester {
 
+    private static final Random RANDOM = new Random();
     private final TftpMemoryDataProvider provider = new TftpMemoryDataProvider();
     private final TFTPClient client = new TFTPClient();
-    private final Random random = new Random();
 
     @Nonnull
     public TftpMemoryDataProvider getProvider() {
@@ -47,15 +45,15 @@ public class TftpServerTester {
     private void assertFails(String path, int mode) throws Exception {
         try {
             client.receiveFile(path, mode, ByteStreams.nullOutputStream(), InetAddress.getLoopbackAddress(), getPort());
-            fail("No");
+            fail("Receive file " + path + "/" + mode + " succeeded unexpectedly.");
         } catch (IOException e) {
         }
     }
 
     @Nonnull
-    private byte[] newRandomBytes(int length) {
+    public static byte[] newRandomBytes(int length) {
         byte[] data = new byte[length];
-        random.nextBytes(data);
+        RANDOM.nextBytes(data);
         return data;
     }
 

@@ -7,8 +7,7 @@ package org.anarres.tftp.server.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
@@ -25,6 +24,7 @@ public class TftpServer extends AbstractTftpServer {
 
     private Channel channel;
     private final TftpPipelineInitializer.SharedHandlers sharedHandlers = new TftpPipelineInitializer.SharedHandlers();
+    private TftpChannelType channelType = TftpChannelType.NIO;
 
     public TftpServer(@Nonnull TftpDataProvider dataProvider, @Nonnegative int port) {
         super(dataProvider, port);
@@ -34,14 +34,25 @@ public class TftpServer extends AbstractTftpServer {
         sharedHandlers.setDebug(debug);
     }
 
+    @Nonnull
+    public TftpChannelType getChannelType() {
+        return channelType;
+    }
+
+    public void setChannelType(@Nonnull TftpChannelType channelType) {
+        this.channelType = channelType;
+    }
+
     @Override
     public void start() throws IOException, InterruptedException {
+        TftpChannelType mode = getChannelType();
+
         ThreadFactory factory = new DefaultThreadFactory("tftp-server");
-        NioEventLoopGroup group = new NioEventLoopGroup(1, factory);
+        EventLoopGroup group = mode.newEventLoopGroup(factory);
 
         Bootstrap b = new Bootstrap();
         b.group(group);
-        b.channel(NioDatagramChannel.class);
+        b.channel(mode.getChannelType());
         b.handler(new TftpPipelineInitializer(sharedHandlers, new TftpServerHandler(sharedHandlers, getDataProvider())));
         channel = b.bind(getPort()).sync().channel();
     }

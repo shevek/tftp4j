@@ -4,7 +4,6 @@
  */
 package org.anarres.tftp.server.mina;
 
-import com.google.common.io.ByteSource;
 import java.net.SocketAddress;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.TftpTransfer;
@@ -12,6 +11,7 @@ import org.anarres.tftp.protocol.packet.TftpErrorCode;
 import org.anarres.tftp.protocol.packet.TftpErrorPacket;
 import org.anarres.tftp.protocol.packet.TftpPacket;
 import org.anarres.tftp.protocol.packet.TftpRequestPacket;
+import org.anarres.tftp.protocol.resource.TftpData;
 import org.anarres.tftp.protocol.resource.TftpDataProvider;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -46,7 +46,7 @@ public class TftpServerProtocolHandler extends IoHandlerAdapter {
         switch (packet.getOpcode()) {
             case RRQ: {
                 TftpRequestPacket request = (TftpRequestPacket) packet;
-                ByteSource source = provider.open(request.getFilename());
+                TftpData source = provider.open(request.getFilename());
                 if (source == null) {
                     session.write(new TftpErrorPacket(address, TftpErrorCode.FILE_NOT_FOUND), address);
                     session.close(false);

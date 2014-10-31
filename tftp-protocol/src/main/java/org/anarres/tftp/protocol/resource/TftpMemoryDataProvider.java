@@ -5,11 +5,11 @@
 package org.anarres.tftp.protocol.resource;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.ByteSource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -19,12 +19,15 @@ public class TftpMemoryDataProvider extends AbstractTftpDataProvider {
 
     private final Map<String, byte[]> map = new HashMap<String, byte[]>();
 
-    public void setData(String name, byte[] data) {
-        map.put(name, data);
+    public void setData(@Nonnull String name, @CheckForNull byte[] data) {
+        if (data == null)
+            map.remove(name);
+        else
+            map.put(name, data);
     }
 
-    public void setData(String name, String data) {
-        map.put(name, data.getBytes(Charsets.ISO_8859_1));
+    public void setData(@Nonnull String name, @Nonnull String data) {
+        setData(name, data.getBytes(Charsets.ISO_8859_1));
     }
 
     @CheckForNull
@@ -33,10 +36,10 @@ public class TftpMemoryDataProvider extends AbstractTftpDataProvider {
     }
 
     @Override
-    public ByteSource open(String filename) throws IOException {
-        byte[] data = map.get(filename);
+    public TftpData open(String filename) throws IOException {
+        byte[] data = getData(filename);
         if (data == null)
             return null;
-        return ByteSource.wrap(data);
+        return new TftpByteArrayData(data);
     }
 }

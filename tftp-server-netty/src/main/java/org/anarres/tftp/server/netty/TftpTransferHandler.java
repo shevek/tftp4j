@@ -4,36 +4,40 @@
  */
 package org.anarres.tftp.server.netty;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.TftpTransfer;
 import org.anarres.tftp.protocol.packet.TftpPacket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author shevek
  */
-public class TftpTransferHandler extends ChannelInboundHandlerAdapter {
+public class TftpTransferHandler extends ChannelDuplexHandler {
 
-    private final TftpTransfer<ChannelHandlerContext> transfer;
+    private static final Logger LOG = LoggerFactory.getLogger(TftpTransferHandler.class);
+    private final TftpTransfer<Channel> transfer;
 
-    public TftpTransferHandler(@Nonnull TftpTransfer<ChannelHandlerContext> transfer) throws IOException {
+    public TftpTransferHandler(@Nonnull TftpTransfer<Channel> transfer) throws IOException {
         this.transfer = transfer;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        transfer.open(ctx);
+        transfer.open(ctx.channel());
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            transfer.handle(ctx, (TftpPacket) msg);
+            transfer.handle(ctx.channel(), (TftpPacket) msg);
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -41,12 +45,18 @@ public class TftpTransferHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        transfer.timeout(ctx);
+        transfer.timeout(ctx.channel());
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        transfer.close(ctx);
+        transfer.close(ctx.channel());
         super.channelUnregistered(ctx);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LOG.error("Error on channel: " + cause, cause);
+        ctx.close();
     }
 }
