@@ -1,31 +1,24 @@
-// Establish version and status
-ext.githubProjectName = rootProject.name // Change if github project name is not the same as the root project's name
+ext.githubProjectName = rootProject.name
 
 buildscript {
-	repositories {
-		// mavenLocal()
-		mavenCentral() // maven { url 'http://jcenter.bintray.com' }
-	}
-	apply from: file('gradle/buildscript.gradle'), to: buildscript 
-}
-
-allprojects {
-	repositories { 
-		// mavenLocal()
-		mavenCentral() // maven { url: 'http://jcenter.bintray.com' }
-	}
+	apply from: file('gradle/buildscript.gradle'), to: buildscript
 }
 
 apply from: file('gradle/convention.gradle')
-apply from: file('gradle/maven.gradle')
+apply from: file('gradle/github.gradle')
+// apply from: file('gradle/maven.gradle')
+apply from: file('gradle/nexus.gradle')
 apply from: file('gradle/check.gradle')
 apply from: file('gradle/license.gradle')
-// apply from: file('gradle/release.gradle')
 
 subprojects {
 	group = "org.anarres.tftp"
 
-	apply plugin: 'info'
+	repositories {
+		// mavenLocal()
+		mavenCentral()
+		// jcenter()
+	}
 
 	dependencies {
 		compile 'com.google.code.findbugs:jsr305:2.0.2'
