@@ -9,3 +9,5 @@ subprojects {
 		ignoreFailures true
 	}
 }
+
+apply plugin: 'license' //nl.javadude.gradle.plugins.license.LicensePlugin
