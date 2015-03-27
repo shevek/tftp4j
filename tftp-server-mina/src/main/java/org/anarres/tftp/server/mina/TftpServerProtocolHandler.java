@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 public class TftpServerProtocolHandler extends IoHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(TftpServerProtocolHandler.class);
-    public static final int SERVER_PORT = 69;
     private final TftpDataProvider provider;
 
     public TftpServerProtocolHandler(@Nonnull TftpDataProvider provider) {

@@ -6,6 +6,8 @@ package org.anarres.tftp.server.mina;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.AbstractTftpServer;
 import org.anarres.tftp.protocol.resource.TftpDataProvider;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
@@ -21,8 +23,12 @@ public class TftpServer extends AbstractTftpServer {
 
     private NioDatagramAcceptor acceptor;
 
-    public TftpServer(TftpDataProvider dataProvider, int port) {
+    public TftpServer(@Nonnull TftpDataProvider dataProvider, @Nonnegative int port) {
         super(dataProvider, port);
+    }
+
+    public TftpServer(@Nonnull TftpDataProvider dataProvider) {
+        super(dataProvider, DEFAULT_SERVER_PORT);
     }
 
     @Override

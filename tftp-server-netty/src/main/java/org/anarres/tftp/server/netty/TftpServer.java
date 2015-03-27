@@ -30,6 +30,10 @@ public class TftpServer extends AbstractTftpServer {
         super(dataProvider, port);
     }
 
+    public TftpServer(@Nonnull TftpDataProvider dataProvider) {
+        super(dataProvider, DEFAULT_SERVER_PORT);
+    }
+
     public void setDebug(boolean debug) {
         sharedHandlers.setDebug(debug);
     }

@@ -17,6 +17,8 @@ import org.anarres.tftp.protocol.resource.TftpDataProvider;
  */
 public abstract class AbstractTftpServer {
 
+    public static final int DEFAULT_SERVER_PORT = 69;
+
     private final TftpDataProvider dataProvider;
     private final int port;
 
