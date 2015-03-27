@@ -18,6 +18,7 @@ subprojects {
 project(':tftp-protocol') {
 	dependencies {
 		compile 'com.google.guava:guava:18.0'
+		compile 'org.codehaus.mojo:animal-sniffer-annotations:1.14'
 
 		testCompile 'commons-net:commons-net:3.3'
 	}
