@@ -5,6 +5,7 @@ subprojects { project ->
 	apply plugin: 'java' // Plugin as major conventions
 	// apply plugin: 'errorprone'
 	apply plugin: 'info'
+	apply plugin: 'com.github.ben-manes.versions'
 
 	sourceCompatibility = 1.5
 
@@ -31,9 +32,13 @@ subprojects { project ->
 	}
 
 	javadoc {
-		options.links "http://docs.oracle.com/javase/7/docs/api/",
-			"http://docs.oracle.com/javaee/7/api/",
-			"http://docs.guava-libraries.googlecode.com/git/javadoc/"
+		if (!gradle.startParameter.offline)
+			options.links "http://docs.oracle.com/javase/7/docs/api/",
+				"http://docs.oracle.com/javaee/7/api/",
+				"http://docs.guava-libraries.googlecode.com/git/javadoc/"
+
+		if (JavaVersion.current().isJava8Compatible())
+			options.addStringOption('Xdoclint:none', '-quiet')
 	}
 
 	test {
