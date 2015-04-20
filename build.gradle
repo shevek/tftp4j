@@ -1,18 +1,32 @@
-ext.githubProjectName = rootProject.name
-
 buildscript {
 	apply from: file('gradle/buildscript.gradle'), to: buildscript
 }
 
-apply from: file('gradle/convention.gradle')
-apply from: file('gradle/github.gradle')
-// apply from: file('gradle/maven.gradle')
-apply from: file('gradle/nexus.gradle')
-apply from: file('gradle/check.gradle')
-apply from: file('gradle/license.gradle')
+apply plugin: 'org.anarres.stdproject'
+stdproject {
+	javadocLink "https://mina.apache.org/mina-project/apidocs/"
+	javadocLink "http://netty.io/4.0/api/"
+}
 
 subprojects {
 	group = "org.anarres.tftp"
+
+	apply plugin: 'org.anarres.stdmodule'
+	stdmodule {
+		description "A high-performance pure Java TFTP server."
+		author id: 'shevek', name: 'Shevek', email: 'github@anarres.org'
+		license 'Apache-2.0'
+	}
+
+	dependencies {
+		compile 'com.google.code.findbugs:jsr305:2.0.2'
+		compile 'org.slf4j:slf4j-api:1.7.12'
+	}
+
+	sourceCompatibility = 1.5
+	animalsniffer {
+		signature = "org.codehaus.mojo.signature:java16:+@signature"
+	}
 }
 
 project(':tftp-protocol') {
