@@ -18,11 +18,6 @@ subprojects {
 		license 'Apache-2.0'
 	}
 
-	dependencies {
-		compile 'com.google.code.findbugs:jsr305:2.0.2'
-		compile 'org.slf4j:slf4j-api:1.7.12'
-	}
-
 	sourceCompatibility = 1.5
 	animalsniffer {
 		signature = "org.codehaus.mojo.signature:java16:+@signature"
@@ -31,6 +26,8 @@ subprojects {
 
 project(':tftp-protocol') {
 	dependencies {
+		compile 'com.google.code.findbugs:annotations:2.0.3'
+		compile 'org.slf4j:slf4j-api:1.7.12'
 		compile 'com.google.guava:guava:18.0'
 		compile 'org.codehaus.mojo:animal-sniffer-annotations:1.14'
 
