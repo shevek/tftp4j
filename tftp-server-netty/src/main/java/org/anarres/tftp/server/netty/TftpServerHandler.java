@@ -6,12 +6,9 @@ package org.anarres.tftp.server.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-import java.net.InetSocketAddress;
 import javax.annotation.Nonnull;
 import org.anarres.tftp.protocol.engine.TftpTransfer;
 import org.anarres.tftp.protocol.packet.TftpErrorCode;
@@ -60,11 +57,12 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
                                 // .remoteAddress(packet.getRemoteAddress())
                                 .handler(new TftpPipelineInitializer(sharedHandlers, new TftpTransferHandler(transfer)));
                         bootstrap.connect(packet.getRemoteAddress());/*.addListener(new ChannelFutureListener() {
-                            @Override
-                            public void operationComplete(ChannelFuture future) throws Exception {
-                                LOG.info("Connected for " + packet);
-                            }
-                        });*/
+                         @Override
+                         public void operationComplete(ChannelFuture future) throws Exception {
+                         LOG.info("Connected for " + packet);
+                         }
+                         });*/
+
                     }
                     break;
                 }
@@ -82,7 +80,11 @@ public class TftpServerHandler extends ChannelInboundHandlerAdapter {
                     break;
                 }
                 case ERROR: {
-                    LOG.error("Received TFTP error packet: " + packet);
+                    LOG.error("Received TFTP error packet: {}", packet);
+                    break;
+                }
+                default: {
+                    LOG.error("Received unknown TFTP packet: {}", packet);
                     break;
                 }
             }

@@ -77,7 +77,7 @@ public abstract class AbstractTftpReadTransfer<TftpTransferContext> extends Abst
      * @param ackBlock indexed from 0
      */
     @VisibleForTesting
-    /* pp */ void ack(@Nonnull TftpTransferContext context, @Nonnegative int ackBlock) throws Exception {
+    /* pp */ void ack(@Nonnull TftpTransferContext context, /* @Nonnegative */ int ackBlock) throws Exception {
         // if (LOG.isDebugEnabled()) LOG.debug("<- Ack protocol-block {} (index {})", (ackBlock + 1), ackBlock);
 
         synchronized (lock) {
@@ -131,6 +131,7 @@ public abstract class AbstractTftpReadTransfer<TftpTransferContext> extends Abst
             case RRQ:
             case WRQ:
             case DATA:
+            default:
                 LOG.warn("{}: Unexpected TFTP " + packet.getOpcode() + " packet: " + packet, this);
                 send(context, new TftpErrorPacket(packet.getRemoteAddress(), TftpErrorCode.ILLEGAL_OPERATION));
                 close(context);
