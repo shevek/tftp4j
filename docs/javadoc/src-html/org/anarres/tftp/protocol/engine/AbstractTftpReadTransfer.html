@@ -85,7 +85,7 @@
 <span class="sourceLineNo">077</span>     * @param ackBlock indexed from 0<a name="line.77"></a>
 <span class="sourceLineNo">078</span>     */<a name="line.78"></a>
 <span class="sourceLineNo">079</span>    @VisibleForTesting<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    /* pp */ void ack(@Nonnull TftpTransferContext context, @Nonnegative int ackBlock) throws Exception {<a name="line.80"></a>
+<span class="sourceLineNo">080</span>    /* pp */ void ack(@Nonnull TftpTransferContext context, /* @Nonnegative */ int ackBlock) throws Exception {<a name="line.80"></a>
 <span class="sourceLineNo">081</span>        // if (LOG.isDebugEnabled()) LOG.debug("&lt;- Ack protocol-block {} (index {})", (ackBlock + 1), ackBlock);<a name="line.81"></a>
 <span class="sourceLineNo">082</span><a name="line.82"></a>
 <span class="sourceLineNo">083</span>        synchronized (lock) {<a name="line.83"></a>
@@ -139,30 +139,31 @@
 <span class="sourceLineNo">131</span>            case RRQ:<a name="line.131"></a>
 <span class="sourceLineNo">132</span>            case WRQ:<a name="line.132"></a>
 <span class="sourceLineNo">133</span>            case DATA:<a name="line.133"></a>
-<span class="sourceLineNo">134</span>                LOG.warn("{}: Unexpected TFTP " + packet.getOpcode() + " packet: " + packet, this);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>                send(context, new TftpErrorPacket(packet.getRemoteAddress(), TftpErrorCode.ILLEGAL_OPERATION));<a name="line.135"></a>
-<span class="sourceLineNo">136</span>                close(context);<a name="line.136"></a>
-<span class="sourceLineNo">137</span>                break;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            case ERROR:<a name="line.138"></a>
-<span class="sourceLineNo">139</span>                TftpErrorPacket error = (TftpErrorPacket) packet;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>                LOG.error("{}: Received TFTP error packet: {}", this, error);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>                close(context);<a name="line.141"></a>
-<span class="sourceLineNo">142</span>                break;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        flush(context);<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
-<span class="sourceLineNo">146</span><a name="line.146"></a>
-<span class="sourceLineNo">147</span>    @Override<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    public void timeout(@Nonnull TftpTransferContext context) throws Exception {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        ack(context, recvBlock);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>    @Override<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    @OverridingMethodsMustInvokeSuper<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    public void close(@Nonnull TftpTransferContext context) throws Exception {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        source.close();<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
-<span class="sourceLineNo">157</span>}<a name="line.157"></a>
+<span class="sourceLineNo">134</span>            default:<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                LOG.warn("{}: Unexpected TFTP " + packet.getOpcode() + " packet: " + packet, this);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                send(context, new TftpErrorPacket(packet.getRemoteAddress(), TftpErrorCode.ILLEGAL_OPERATION));<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                close(context);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                break;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            case ERROR:<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                TftpErrorPacket error = (TftpErrorPacket) packet;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                LOG.error("{}: Received TFTP error packet: {}", this, error);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                close(context);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                break;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        }<a name="line.144"></a>
+<span class="sourceLineNo">145</span>        flush(context);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>    @Override<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    public void timeout(@Nonnull TftpTransferContext context) throws Exception {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        ack(context, recvBlock);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    @Override<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    @OverridingMethodsMustInvokeSuper<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    public void close(@Nonnull TftpTransferContext context) throws Exception {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        source.close();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>}<a name="line.158"></a>
 
 
 
